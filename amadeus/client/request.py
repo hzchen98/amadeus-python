@@ -70,6 +70,9 @@ class Request(object):
             'Accept': 'application/json, application/vnd.amadeus+json',
             'Content-Type': 'application/vnd.amadeus+json'
         }
+        
+        if headers := options['headers']:
+            self.headers.update(headers)
 
         self.url = self.__build_url()
         self.http_request = self.__build_http_request()

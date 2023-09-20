@@ -16,7 +16,7 @@ class HTTP(object):
     every namespaced API method.
     '''
 
-    def get(self, path, **params):
+    def get(self, path, headers=None, **params):
         '''
         A helper function for making generic GET requests calls. It is used by
         every namespaced API GET method.
@@ -37,9 +37,9 @@ class HTTP(object):
         :rtype: amadeus.Response
         :raises amadeus.ResponseError: when the request fails
         '''
-        return self.request('GET', path, params)
+        return self.request('GET', path, headers, params)
 
-    def post(self, path, params=None):
+    def post(self, path, headers=None, params=None):
         '''
         A helper function for making generic POST requests calls. It is used by
         every namespaced API POST method.
@@ -60,9 +60,9 @@ class HTTP(object):
         :rtype: amadeus.Response
         :raises amadeus.ResponseError: when the request fails
         '''
-        return self.request('POST', path, params)
+        return self.request('POST', path, headers, params)
 
-    def delete(self, path, **params):
+    def delete(self, path, headers=None, **params):
         '''
         A helper function for making generic DELETE requests calls. It is used by
         every namespaced API DELETE method.
@@ -83,9 +83,9 @@ class HTTP(object):
         :rtype: amadeus.Response
         :raises amadeus.ResponseError: when the request fails
         '''
-        return self.request('DELETE', path, params)
+        return self.request('DELETE', path, headers, params)
 
-    def request(self, verb, path, params):
+    def request(self, verb, path, headers, params):
         '''
         A helper function for making generic POST requests calls. It is used by
         every namespaced API method. It can be used to make any generic API
@@ -108,7 +108,7 @@ class HTTP(object):
         :raises amadeus.ResponseError: when the request fails
         '''
         return self._unauthenticated_request(
-            verb, path, params,
+            verb, path, headers, params,
             self.__access_token()._bearer_token()
         )
 
@@ -120,8 +120,8 @@ class HTTP(object):
     #
     # Passes the response to a Response object for further parsing.
     #
-    def _unauthenticated_request(self, verb, path, params, bearer_token=None):
-        request = self.__build_request(verb, path, params, bearer_token)
+    def _unauthenticated_request(self, verb, path, headers, params, bearer_token=None):
+        request = self.__build_request(verb, path, headers, params, bearer_token)
         self.__log(request)
         return self.__execute(request)
 
@@ -129,7 +129,7 @@ class HTTP(object):
 
     # Builds a HTTP request object that contains all the information about
     # this request
-    def __build_request(self, verb, path, params, bearer_token):
+    def __build_request(self, verb, path, headers, params, bearer_token):
         return Request({
             'host': self.host,
             'verb': verb,
@@ -141,7 +141,8 @@ class HTTP(object):
             'app_id': self.custom_app_id,
             'app_version': self.custom_app_version,
             'ssl': self.ssl,
-            'port': self.port
+            'port': self.port,
+            'headers': headers
         })
 
     # Executes the request and wraps it in a Response
